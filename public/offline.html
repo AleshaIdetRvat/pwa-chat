@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Weather App Offline</title>
+        <link rel="stylesheet" type="text/css" href="./assets/style.css" />
+    </head>
+
+    <body>
+        <h3 class="h1-title">You are offline</h3>
+        <main class="main">
+            <form class="main__weather-search-form">
+                <input
+                    class="main__search"
+                    type="text"
+                    placeholder="Your are offline"
+                />
+            </form>
+        </main>
+    </body>
+
+    <script>
+        navigator.serviceWorker.onmessage = (event) => {
+            console.log("Offline😎CLIENT: Message from SW -", event.data)
+        }
+    </script>
+</html>

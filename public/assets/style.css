@@ -1,0 +1,26 @@
+:root {
+    --green: rgb(20, 255, 114);
+    --green-light: rgba(20, 255, 114, 0.7);
+
+    --grey: rgb(70, 70, 70);
+    --grey-send-btn: #9b9b9b;
+    --grey-light: rgb(209, 209, 209);
+
+    --black-dark: #0f0f0f;
+    --black: rgb(26, 26, 26);
+    --black-light: #3a3a3a;
+}
+
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    background-color: rgb(43, 43, 43);
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
