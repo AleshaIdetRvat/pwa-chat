@@ -36,23 +36,17 @@ self.addEventListener("fetch", (event) => {
         caches.match(event.request).then(() => {
             return fetch(event.request).catch(() => {
                 caches.open(CACHE_NAME_MESSAGES).then((messagesCache) => {
-                    messagesCache
-                        .match(urlToMessagesCache)
-                        .then((oldMessages) => {
-                            oldMessages.json().then((parsedOldMessages) => {
-                                self.clients.matchAll().then((clients) => {
-                                    clients.forEach((client) => {
-                                        console.log(
-                                            "__offline__parsedOldMessages"
-                                        )
-                                        client.postMessage(parsedOldMessages)
-                                    })
+                    messagesCache.match(urlToMessagesCache).then((users) => {
+                        users.json().then((parsedOldMessages) => {
+                            self.clients.matchAll().then((clients) => {
+                                clients.forEach((client) => {
+                                    console.log("__offline__parsedOldMessages")
+                                    client.postMessage(parsedOldMessages)
                                 })
                             })
                         })
+                    })
                 })
-
-                console.log(`event.request`, event.request.url)
 
                 if (
                     event.request.url ===
@@ -88,46 +82,52 @@ self.addEventListener("activate", (event) => {
 // Messages
 self.addEventListener("message", function (event) {
     // console.log("👾SW: message from CLIENT -", event.data) // event.data = newMessage
-
     event.waitUntil(
         caches.open(CACHE_NAME_MESSAGES).then(async (cache) => {
-            const oldMessages = await cache.match(urlToMessagesCache)
+            const messageType = event.data.type
+            const newMessage = event.data.message
 
-            const parsedOldMessages = await oldMessages.json()
+            const users = await cache.match(urlToMessagesCache)
 
-            if (parsedOldMessages.length > 30) {
-                // save last 30 messages
-                parsedOldMessages.shift()
-            }
+            const parsedUsers = await users.json()
 
-            if (event.data === "GET_MESSAGES") {
+            if (messageType === "GET_MESSAGES") {
+                const oldMessages = parsedUsers[event.data.addresseeName]
+
                 self.clients.matchAll().then((clients) => {
-                    clients.forEach((client) =>
-                        client.postMessage(parsedOldMessages)
-                    )
+                    console.log("SW: Send old messages: ", oldMessages)
+
+                    clients.forEach((client) => client.postMessage(oldMessages))
                 })
 
                 cache.put(
                     urlToMessagesCache,
-                    new Response(JSON.stringify([...parsedOldMessages]))
+                    new Response(JSON.stringify(parsedUsers))
                 )
             } else {
+                const myName = event.data.myName
+
+                const toUser =
+                    newMessage.to === myName ? newMessage.from : newMessage.to
+
+                const oldMessages = parsedUsers[toUser]
+
+                const updatedMessages = oldMessages
+                    ? [...oldMessages, newMessage]
+                    : [newMessage]
+
+                console.log(`updatedMessages`, updatedMessages)
+
                 cache.put(
                     urlToMessagesCache,
                     new Response(
-                        JSON.stringify([...parsedOldMessages, event.data])
+                        JSON.stringify({
+                            ...parsedUsers,
+                            [toUser]: updatedMessages,
+                        })
                     )
                 )
             }
-
-            // cache.put(
-            //     urlToMessagesCache,
-            //     new Response(JSON.stringify([...parsedOldMessages, event.data]))
-            // )
         })
     )
-
-    // self.clients.matchAll().then((clients) => {
-    //     clients.forEach((client) => client.postMessage("Hello from SW!"))
-    // })
 })

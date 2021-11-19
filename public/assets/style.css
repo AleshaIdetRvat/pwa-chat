@@ -2,6 +2,8 @@
     --green: rgb(20, 255, 114);
     --green-light: rgba(20, 255, 114, 0.7);
 
+    --text: #ececec;
+
     --grey: rgb(70, 70, 70);
     --grey-send-btn: #9b9b9b;
     --grey-light: rgb(209, 209, 209);
@@ -16,11 +18,64 @@
 }
 body {
     margin: 0;
-    background-color: rgb(43, 43, 43);
+    color: var(--text);
+    background-color: var(--black);
 }
 
 main {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.popup {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    padding: 10vh 10vw;
+    background-color: #0f0f0f98;
+}
+
+.popup__form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    justify-content: center;
+
+    background-color: var(--black-light);
+    border-radius: 12px;
+}
+.popup__your-name,
+.popup__addressee-name,
+.popup__btn {
+    transition: 0.2s;
+
+    width: 40vw;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+
+    color: var(--text);
+
+    background-color: var(--grey);
+}
+
+.popup__your-name {
+}
+.popup__addressee-name {
+}
+.popup__btn {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--black-dark);
+}
+
+.popup__btn:hover {
+    opacity: 0.6;
 }
