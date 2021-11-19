@@ -9,10 +9,6 @@ function init() {
 
     ws.onopen = () => console.log("Connection opened")
 
-    // ws.onmessage = (wsRes) => {
-    //     console.log("______WebSocket message:", JSON.parse(wsRes.data))
-    // }
-
     ws.onclose = () => {
         console.log("Connection closed")
         ws = null
