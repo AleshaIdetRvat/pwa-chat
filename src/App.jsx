@@ -9,12 +9,9 @@ const App = () => {
     const [sendMessage, setMessages, messages, currentName, setCurrentName] =
         useMessage()
 
-    const [to, setTo] = useState("")
     const [messageText, setMessageText] = useState("")
 
-    window.sendMessage = sendMessage
-
-    // console.log("messages:", messages)
+    console.log("messages:", messages)
 
     useEffect(() => {
         navigator.serviceWorker.onmessage = (event) => {
@@ -37,16 +34,11 @@ const App = () => {
                 onChange={(e) => setCurrentName(e.target.value)}
             />
             <hr />
-            <input
-                type='text'
-                value={to}
-                placeholder='To'
-                onChange={(e) => setTo(e.target.value)}
-            />
+
             <form
                 onSubmit={(e) => {
                     e.preventDefault()
-                    sendMessage(messageText, currentName, to)
+                    sendMessage(messageText, currentName)
                 }}
             >
                 <input
@@ -58,11 +50,12 @@ const App = () => {
             </form>
 
             <ul>
-                {messages.map(({ from, message }) => {
+                {messages.map(({ from, messageText, time }) => {
                     return (
                         <li>
-                            <b>{from}: </b>
-                            {message}
+                            <b>{from || "_anonym"}: </b>
+                            {typeof messageText === "string" && messageText}
+                            <i>{time}</i>
                         </li>
                     )
                 })}

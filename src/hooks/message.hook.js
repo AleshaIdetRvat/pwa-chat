@@ -28,25 +28,24 @@ function useMessage() {
     const initOnMessage = useCallback(() => {
         ws.onmessage = (wsRes) => {
             const resMessage = JSON.parse(wsRes.data)
+
             console.log("WebSocket message:", resMessage)
+
             navigator.serviceWorker.controller.postMessage(resMessage)
             setMessages([...messages, resMessage])
         }
-    }, [])
+    }, [messages])
 
     if (ws) {
         initOnMessage()
     }
 
-    function sendMessage(msg, nameOfSender, nameOfAddressee) {
-        //
-
+    function sendMessage(msg, nameOfSender) {
         if (currentName === "") return
 
         const newMessage = {
             from: nameOfSender.toLowerCase(),
-            to: nameOfAddressee.toLowerCase(),
-            message: msg,
+            messageText: msg,
             time: new Date().toLocaleTimeString().substr(0, 5),
         }
 
@@ -56,9 +55,6 @@ function useMessage() {
 
         ws.send(JSON.stringify(newMessage))
     }
-
-    // init()
-    window.ws = ws
 
     return [sendMessage, setMessages, messages, currentName, setCurrentName]
 }
