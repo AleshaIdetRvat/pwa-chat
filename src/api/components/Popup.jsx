@@ -28,13 +28,14 @@ const Popup = (props) => {
 
     const validInputStyle = (isValid) => ({
         boxShadow: isValid
-            ? "0px 0px 0px 3px var(--green)"
-            : "0px 0px 0px 0px var(--green)",
+            ? "0px 0px 0px 3px var(--green-light)"
+            : "0px 0px 0px 0px var(--green-light)",
     })
 
     return (
         <div className='popup'>
             <form className='popup__form' onSubmit={onSubmit}>
+                <h1>PWA Chat</h1>
                 <input
                     className='popup__your-name'
                     type='text'
@@ -59,7 +60,7 @@ const Popup = (props) => {
                     style={
                         isNameValid && isAddresseeNameValid
                             ? {
-                                  backgroundColor: "var(--green)",
+                                  backgroundColor: "var(--green-light)",
                               }
                             : {}
                     }

@@ -44,6 +44,11 @@ const Chat = (props) => {
 
     const [inputRowsCount, setInputRowsCount] = useState(1)
 
+    const onSendMessage = (e) => {
+        onSubmit(e)
+        setInputRowsCount(1)
+    }
+
     const onKeyDown = (e) => {
         // func for text area auto resize
         if (
@@ -60,7 +65,12 @@ const Chat = (props) => {
     return (
         <div className='chat'>
             <div className='chat__container'>
-                <header className='chat__header' onClick={onHeaderClick}>
+                <header
+                    className='chat__header'
+                    aria-label='open setting'
+                    role='button'
+                    onClick={onHeaderClick}
+                >
                     <div className='chat__addressee chat-addressee'>
                         <div className='chat-addressee__ava addressee-ava'>
                             <span className='addressee-ava__inner'>
@@ -78,7 +88,10 @@ const Chat = (props) => {
                             return (
                                 <ChatMessage
                                     key={from + messageText + time + i}
-                                    isMyMessage={from === currentName}
+                                    isMyMessage={
+                                        from.toLowerCase() ===
+                                        currentName.toLowerCase()
+                                    }
                                     from={from}
                                     messageText={messageText}
                                     time={time}
@@ -87,7 +100,10 @@ const Chat = (props) => {
                         })}
                 </ul>
 
-                <form className='chat__bottom send-block' onSubmit={onSubmit}>
+                <form
+                    className='chat__bottom send-block'
+                    onSubmit={onSendMessage}
+                >
                     <textarea
                         className='send-block__input'
                         wrap='off'
@@ -171,13 +187,14 @@ const ChatContainer = () => {
     const onSubmit = (e) => {
         e.preventDefault()
         sendMessage(messageText.trim())
+        setMessageText("")
     }
 
     const onHeaderClick = () => setIsPopupShow(true)
 
     return (
         <>
-            {isPopupShow && (
+            {isPopupShow ? (
                 <Popup
                     onChangeAddressee={onChangeAddressee}
                     addresseeName={addresseeName}
@@ -185,17 +202,17 @@ const ChatContainer = () => {
                     currentName={currentName}
                     closePopup={() => setIsPopupShow(false)}
                 />
+            ) : (
+                <Chat
+                    currentName={currentName}
+                    onHeaderClick={onHeaderClick}
+                    addresseeName={addresseeName}
+                    messages={messages}
+                    onSubmit={onSubmit}
+                    onChangeMessageText={onChangeMessageText}
+                    messageText={messageText}
+                />
             )}
-
-            <Chat
-                currentName={currentName}
-                onHeaderClick={onHeaderClick}
-                addresseeName={addresseeName}
-                messages={messages}
-                onSubmit={onSubmit}
-                onChangeMessageText={onChangeMessageText}
-                messageText={messageText}
-            />
         </>
     )
 }
