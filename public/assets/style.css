@@ -34,7 +34,7 @@ body {
 }
 
 main {
-    height: inherit;
+    height: 100%;
 }
 /* Popup styles */
 .popup {
@@ -108,6 +108,7 @@ main {
 }
 
 .chat__header {
+    cursor: pointer;
     transition: 0.2s;
     padding: 15px 28px;
     background-color: var(--black-dark);
@@ -263,7 +264,7 @@ main {
     background-color: var(--grey);
 }
 .message__full-name {
-    margin: 0 16px 0 0;
+    margin: 0 16px 4px 0;
 
     font-size: 1em;
     text-transform: capitalize;
@@ -284,6 +285,10 @@ main {
     body {
         font-size: 16px;
     }
+    .message__ava {
+        min-width: 40px;
+        height: 40px;
+    }
     .message {
         width: 90%;
     }
@@ -297,8 +302,8 @@ main {
     }
 
     .send-block__btn-icon {
-        width: 24px;
-        height: 24px;
+        /* width: 24px;
+        height: 24px; */
     }
 }
 

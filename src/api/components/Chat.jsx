@@ -171,8 +171,11 @@ const ChatContainer = () => {
 
         navigator.serviceWorker.controller.postMessage({
             type: "GET_MESSAGES",
-            myName: currentName,
-            addresseeName: addresseeName.toLowerCase(),
+            myName: currentName.toLowerCase(),
+            message: {
+                from: currentName.toLowerCase(),
+                to: addresseeName.toLowerCase(),
+            },
         })
 
         return () => {

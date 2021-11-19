@@ -84,6 +84,8 @@ self.addEventListener("message", function (event) {
     // console.log("👾SW: message from CLIENT -", event.data) // event.data = newMessage
     event.waitUntil(
         caches.open(CACHE_NAME_MESSAGES).then(async (cache) => {
+            console.log("msg type", event.data.type)
+
             const messageType = event.data.type
             const newMessage = event.data.message
 
@@ -91,8 +93,32 @@ self.addEventListener("message", function (event) {
 
             const parsedUsers = await users.json()
 
+            const myName = event.data.myName
+            const toUser =
+                newMessage.to.toLowerCase() === myName.toLowerCase()
+                    ? newMessage.from
+                    : newMessage.to
+
             if (messageType === "GET_MESSAGES") {
-                const oldMessages = parsedUsers[event.data.addresseeName]
+                let oldMessages = parsedUsers[newMessage.to]
+
+                if (parsedUsers[myName]) {
+                    oldMessages = [
+                        ...oldMessages,
+                        ...parsedUsers[myName].filter(
+                            ({ to }) => to !== toUser
+                        ),
+                    ]
+
+                    const toMinutes = (strTime) =>
+                        strTime
+                            .split(":")
+                            .reduce((prev, curr) => +prev * 60 + +curr)
+
+                    oldMessages.sort(
+                        (a, b) => toMinutes(a.time) - toMinutes(b.time)
+                    )
+                }
 
                 self.clients.matchAll().then((clients) => {
                     console.log("SW: Send old messages: ", oldMessages)
@@ -105,11 +131,6 @@ self.addEventListener("message", function (event) {
                     new Response(JSON.stringify(parsedUsers))
                 )
             } else {
-                const myName = event.data.myName
-
-                const toUser =
-                    newMessage.to === myName ? newMessage.from : newMessage.to
-
                 const oldMessages = parsedUsers[toUser]
 
                 const updatedMessages = oldMessages
