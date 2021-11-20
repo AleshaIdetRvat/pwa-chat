@@ -40,7 +40,7 @@ self.addEventListener("fetch", (event) => {
                         users.json().then((parsedUsers) => {
                             self.clients.matchAll().then((clients) => {
                                 clients.forEach((client) => {
-                                    console.log("__offline__parsedUsers", {})
+                                    console.log("__offline__")
                                     client.postMessage(parsedUsers)
                                     client.postMessage({ type: "OFFLINE" })
                                 })
