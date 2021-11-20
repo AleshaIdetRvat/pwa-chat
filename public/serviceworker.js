@@ -84,8 +84,6 @@ self.addEventListener("message", function (event) {
     // console.log("👾SW: message from CLIENT -", event.data) // event.data = newMessage
     event.waitUntil(
         caches.open(CACHE_NAME_MESSAGES).then(async (cache) => {
-            console.log("msg type", event.data.type)
-
             const messageType = event.data.type
             const newMessage = event.data.message
 
@@ -119,11 +117,23 @@ self.addEventListener("message", function (event) {
                         (a, b) => toMinutes(a.time) - toMinutes(b.time)
                     )
                 }
+                console.log(
+                    "users",
+                    Object.keys(parsedUsers).filter(
+                        (userName) => userName !== myName
+                    )
+                )
 
                 self.clients.matchAll().then((clients) => {
-                    console.log("SW: Send old messages: ", oldMessages)
-
-                    clients.forEach((client) => client.postMessage(oldMessages))
+                    clients.forEach((client) =>
+                        client.postMessage({
+                            type: "GET_MESSAGES",
+                            messages: oldMessages,
+                            users: Object.keys(parsedUsers).filter(
+                                (userName) => userName !== myName
+                            ),
+                        })
+                    )
                 })
 
                 cache.put(

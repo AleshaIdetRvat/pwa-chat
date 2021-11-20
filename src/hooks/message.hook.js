@@ -2,7 +2,7 @@ import { useState, useCallback } from "react"
 
 let ws
 
-function init() {
+function initWebSocketConnection() {
     ws = new WebSocket("wss://ws.qexsystems.ru")
 
     ws.onopen = () => console.log("Connection opened")
@@ -13,13 +13,14 @@ function init() {
     }
 }
 
-init()
+initWebSocketConnection()
 
 function useMessage() {
+    const [contacts, setContacts] = useState([])
+
     const [currentName, setCurrentName] = useState(
         localStorage.getItem("name") || ""
     )
-    console.log("currentName", currentName)
 
     const [addresseeName, setAddresseeName] = useState(
         localStorage.getItem("addresseeName") || ""
@@ -46,14 +47,7 @@ function useMessage() {
 
             if (!isMessageObjValid(resMessage)) return
 
-            console.log(`resMessage`, resMessage)
-
-            console.log(`resMessage.to`, resMessage.to)
-            console.log(`currentName`, currentName)
-
             if (resMessage.to === currentName.toLowerCase()) {
-                console.log("WebSocket message:", resMessage)
-
                 navigator.serviceWorker.controller.postMessage({
                     myName: currentName,
                     message: resMessage,
@@ -96,6 +90,8 @@ function useMessage() {
         setCurrentName,
         addresseeName,
         setAddresseeName,
+        contacts,
+        setContacts,
     ]
 }
 

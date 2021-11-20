@@ -74,7 +74,7 @@ const Chat = (props) => {
                     <div className='chat__addressee chat-addressee'>
                         <div className='chat-addressee__ava addressee-ava'>
                             <span className='addressee-ava__inner'>
-                                {addresseeName[0].toUpperCase()}
+                                {addresseeName[0]?.toUpperCase()}
                             </span>
                         </div>
 
@@ -154,6 +154,8 @@ const ChatContainer = () => {
         setCurrentName,
         addresseeName,
         setAddresseeName,
+        contacts,
+        setContacts,
     ] = useMessage()
 
     const [isPopupShow, setIsPopupShow] = useState(
@@ -164,9 +166,14 @@ const ChatContainer = () => {
 
     useEffect(() => {
         navigator.serviceWorker.onmessage = (event) => {
-            Array.isArray(event.data)
-                ? setMessages(event.data)
-                : setMessages([])
+            console.log(event.data)
+            if (event.data.type === "GET_MESSAGES" && event.data.messages) {
+                setMessages(event.data.messages)
+
+                setContacts([...contacts, ...event.data.users])
+            } else {
+                setMessages([])
+            }
         }
 
         navigator.serviceWorker.controller.postMessage({
@@ -185,7 +192,7 @@ const ChatContainer = () => {
 
     const onChangeName = (e) => setCurrentName(e.target.value)
     const onChangeMessageText = (e) => setMessageText(e.target.value)
-    const onChangeAddressee = (e) => setAddresseeName(e.target.value)
+    const setAddressee = setAddresseeName
 
     const onSubmit = (e) => {
         e.preventDefault()
@@ -197,25 +204,27 @@ const ChatContainer = () => {
 
     return (
         <>
-            {isPopupShow ? (
+            {isPopupShow && ( // isPopupShow
                 <Popup
-                    onChangeAddressee={onChangeAddressee}
+                    setAddressee={setAddressee}
                     addresseeName={addresseeName}
                     onChangeName={onChangeName}
                     currentName={currentName}
                     closePopup={() => setIsPopupShow(false)}
-                />
-            ) : (
-                <Chat
-                    currentName={currentName}
-                    onHeaderClick={onHeaderClick}
-                    addresseeName={addresseeName}
-                    messages={messages}
-                    onSubmit={onSubmit}
-                    onChangeMessageText={onChangeMessageText}
-                    messageText={messageText}
+                    contacts={contacts}
+                    setContacts={setContacts}
                 />
             )}
+
+            <Chat
+                currentName={currentName}
+                onHeaderClick={onHeaderClick}
+                addresseeName={addresseeName}
+                messages={messages}
+                onSubmit={onSubmit}
+                onChangeMessageText={onChangeMessageText}
+                messageText={messageText}
+            />
         </>
     )
 }
