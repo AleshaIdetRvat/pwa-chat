@@ -12,6 +12,8 @@ const Popup = (props) => {
         closePopup,
         contacts,
         setContacts,
+        isPopupShow,
+        isOffline,
     } = props
 
     const [newContactText, setNewContactText] = React.useState("")
@@ -23,7 +25,7 @@ const Popup = (props) => {
     const isNameValid = checkFullNameValid(currentName)
 
     const addNewContact = () => {
-        if (isNewContactText) {
+        if (isNewContactText && !isOffline) {
             setContacts([...new Set([...contacts, newContactText])])
             setAddressee(newContactText)
         }
@@ -31,7 +33,6 @@ const Popup = (props) => {
 
     const onSubmit = (e) => {
         e.preventDefault()
-        console.log(addresseeName)
         if (isNameValid) {
             localStorage.setItem("name", currentName)
             localStorage.setItem("addresseeName", addresseeName)
@@ -48,7 +49,7 @@ const Popup = (props) => {
     const onSelectChange = (e) => setAddressee(e.target.value)
 
     return (
-        <div className='popup'>
+        <div className={`popup ${isPopupShow && "popup-show"}`}>
             <form className='popup__form' onSubmit={onSubmit}>
                 <h1>PWA Chat</h1>
                 <input
@@ -58,28 +59,8 @@ const Popup = (props) => {
                     placeholder='Your first and last name'
                     onChange={onChangeName}
                     style={validInputStyle(isNameValid)}
+                    disabled={isOffline}
                 />
-
-                <div className='popup__new-contact'>
-                    <input
-                        className='popup__addressee-name'
-                        type='text'
-                        placeholder='Add new contact'
-                        value={newContactText}
-                        onChange={onChangeNewContact}
-                        style={validInputStyle(isNewContactText)}
-                        // value={addresseeName}
-                        // onChange={setAddressee}
-                    />
-
-                    <button
-                        className='popup__new-contact-icon'
-                        onClick={addNewContact}
-                        type='button'
-                    >
-                        +
-                    </button>
-                </div>
 
                 <label className='popup__contacts'>
                     {contacts.length !== 0 ? (
@@ -89,7 +70,6 @@ const Popup = (props) => {
                                 className='popup__contacts-select'
                                 value={addresseeName}
                                 onChange={onSelectChange}
-                                // value={this.state.value}
                             >
                                 {contacts.map((contact) => (
                                     <option
@@ -106,6 +86,27 @@ const Popup = (props) => {
                         "You don't have contacts"
                     )}
                 </label>
+
+                <div className='popup__new-contact'>
+                    <input
+                        className='popup__addressee-name'
+                        type='text'
+                        placeholder='Add new contact'
+                        value={newContactText}
+                        onChange={onChangeNewContact}
+                        style={validInputStyle(isNewContactText)}
+                        disabled={isOffline}
+                    />
+
+                    <button
+                        className='popup__new-contact-icon'
+                        onClick={addNewContact}
+                        type='button'
+                        disabled={isOffline}
+                    >
+                        +
+                    </button>
+                </div>
 
                 <button
                     className='popup__btn'

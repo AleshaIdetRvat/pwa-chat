@@ -38,6 +38,7 @@ const Chat = (props) => {
         addresseeName,
         onHeaderClick,
         currentName,
+        isOffline,
     } = props
 
     const isInputTextValid = messageText.trim() !== ""
@@ -118,7 +119,7 @@ const Chat = (props) => {
                     <button
                         className='send-block__btn'
                         type='submit'
-                        disabled={!isInputTextValid}
+                        disabled={!isInputTextValid || isOffline}
                     >
                         <svg
                             className='send-block__btn-icon'
@@ -158,6 +159,8 @@ const ChatContainer = () => {
         setContacts,
     ] = useMessage()
 
+    const [isOffline, setIsOffline] = useState(false)
+
     const [isPopupShow, setIsPopupShow] = useState(
         !localStorage.getItem("name")
     )
@@ -166,11 +169,11 @@ const ChatContainer = () => {
 
     useEffect(() => {
         navigator.serviceWorker.onmessage = (event) => {
-            console.log(event.data)
+            if (event.data.type === "OFFLINE") return setIsOffline(true)
+
             if (event.data.type === "GET_MESSAGES" && event.data.messages) {
                 setMessages(event.data.messages)
-
-                setContacts([...contacts, ...event.data.users])
+                setContacts([...new Set([...contacts, ...event.data.users])])
             } else {
                 setMessages([])
             }
@@ -191,8 +194,8 @@ const ChatContainer = () => {
     }, [addresseeName])
 
     const onChangeName = (e) => setCurrentName(e.target.value)
+
     const onChangeMessageText = (e) => setMessageText(e.target.value)
-    const setAddressee = setAddresseeName
 
     const onSubmit = (e) => {
         e.preventDefault()
@@ -204,19 +207,20 @@ const ChatContainer = () => {
 
     return (
         <>
-            {isPopupShow && ( // isPopupShow
-                <Popup
-                    setAddressee={setAddressee}
-                    addresseeName={addresseeName}
-                    onChangeName={onChangeName}
-                    currentName={currentName}
-                    closePopup={() => setIsPopupShow(false)}
-                    contacts={contacts}
-                    setContacts={setContacts}
-                />
-            )}
+            <Popup
+                isOffline={isOffline}
+                isPopupShow={isPopupShow}
+                setAddressee={setAddresseeName}
+                addresseeName={addresseeName}
+                onChangeName={onChangeName}
+                currentName={currentName}
+                closePopup={() => setIsPopupShow(false)}
+                contacts={contacts}
+                setContacts={setContacts}
+            />
 
             <Chat
+                isOffline={isOffline}
                 currentName={currentName}
                 onHeaderClick={onHeaderClick}
                 addresseeName={addresseeName}

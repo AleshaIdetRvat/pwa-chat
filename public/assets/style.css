@@ -44,11 +44,14 @@ main {
     right: 0;
     left: 0;
     bottom: 0;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
 
     background-color: var(--black);
+}
+.popup-show {
+    display: flex;
 }
 
 .popup__form {

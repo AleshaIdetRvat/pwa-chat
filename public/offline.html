@@ -9,9 +9,11 @@
 
     <body>
         <main class="main">
+            <div id="popup" class="popup"></div>
             <div class="chat">
                 <div class="chat__container">
                     <header
+                        id="chat-header"
                         class="chat__header"
                         aria-label="open setting"
                         role="button"
@@ -40,6 +42,7 @@
                     <form class="chat__bottom send-block">
                         <textarea
                             class="send-block__input"
+                            rows="1"
                             wrap="off"
                             type="text"
                             disabled
@@ -97,6 +100,86 @@
                 </li>`
         }
 
+        function createPopupElement(props) {
+            const {
+                currentName,
+                addresseeName,
+                contacts,
+                setAddressee,
+                onSubmit,
+            } = props
+
+            console.log("props", props)
+
+            const popupElement = document.getElementById("popup")
+
+            popupElement.innerHTML = `<form class='popup__form'>
+                                          <h1>PWA Chat (offline)</h1>
+
+                                          <input
+                                              class='popup__your-name'
+                                              type='text'
+                                              placeholder='Your first and last name'
+                                          >
+
+                                          <label id='popup-contacts' class='popup__contacts'></label>
+
+                                          <button
+                                              id='save-btn'
+                                              class='popup__btn'
+                                          >
+                                              Save
+                                          </button>
+                                      </form>
+                                      `
+
+            document
+                .getElementById("save-btn")
+                .addEventListener("click", onSubmit)
+
+            const contactsListElement =
+                document.getElementById("popup-contacts")
+
+            let contactsListInnerHtml
+
+            if (contacts.length !== 0) {
+                contactsListInnerHtml = `Open a dialogue with
+                                        <select
+                                            class='popup__contacts-select'
+                                            value='${addresseeName}'
+                                            id='contacts-select'
+                                        ></select>`
+
+                contactsListElement.innerHTML = contactsListInnerHtml
+
+                const contactsSelectElement =
+                    document.getElementById("contacts-select")
+
+                for (const contactItem of contacts) {
+                    console.log(`contactsSelectElement`, contactsSelectElement)
+                    const contactStr =
+                        "<option class='popup__contacts-option' value=\"" +
+                        contactItem +
+                        '"> ' +
+                        contactItem +
+                        "</option>"
+
+                    console.log(`contactStr`, contactStr)
+
+                    contactsSelectElement.innerHTML += contactStr
+                }
+
+                contactsSelectElement.addEventListener("onchange", (e) => {
+                    console.log(`setAddressee`, e.target.value)
+                    setAddressee(e.target.value)
+                })
+            } else {
+                contactsListInnerHtml = "You don't have contacts"
+            }
+
+            contactsListElement.innerHTML = contactsListInnerHtml
+        }
+
         function filterMessages(myName, addressee, parsedUsers) {
             const toUser =
                 addressee.toLowerCase() === myName.toLowerCase()
@@ -125,7 +208,7 @@
         }
 
         function setMessages(messages, containerElement, myName) {
-            if (containerElement.innerHTML.trim() !== "") return
+            containerElement.innerHTML = ""
 
             for (const msg of messages) {
                 const { from, to, messageText, time } = msg
@@ -142,15 +225,20 @@
         }
 
         navigator.serviceWorker.onmessage = (event) => {
+            parsedUsers = event.data
+
             let messagesList = document.getElementById("messages-list")
+
             const addresseeAvaElement = document.getElementById(
                 "addressee-ava-inner"
             )
             const addresseeNameElement =
                 document.getElementById("addresse-name")
 
-            const myName = localStorage.getItem("name")
-            const addresseeName = localStorage.getItem("addresseeName")
+            const myName = localStorage.getItem("name").toLowerCase()
+            const addresseeName = localStorage
+                .getItem("addresseeName")
+                .toLowerCase()
 
             addresseeAvaElement.innerText = addresseeName[0].toUpperCase()
             addresseeNameElement.innerText = addresseeName
@@ -158,10 +246,43 @@
             const normalizedMessages = filterMessages(
                 myName,
                 addresseeName,
-                event.data
+                parsedUsers
             )
 
             setMessages(normalizedMessages, messagesList, myName)
+
+            const closePopup = () => {
+                const popupElement = document.getElementById("popup")
+                popupElement.classList.remove("popup-show")
+            }
+
+            const openPopup = () => {
+                const popupElement = document.getElementById("popup")
+                popupElement.classList.add("popup-show")
+            }
+
+            document
+                .getElementById("chat-header")
+                .addEventListener("click", openPopup)
+
+            const setAddressee = (addressee) => {
+                navigator.serviceWorker.controller.postMessage({
+                    type: "GET_MESSAGES",
+                    myName: myName,
+                    message: {
+                        from: myName,
+                        to: addressee.toLowerCase(),
+                    },
+                })
+            }
+
+            createPopupElement({
+                currentName: myName,
+                addresseeName,
+                contacts: Object.keys(parsedUsers),
+                setAddressee,
+                onSubmit: closePopup,
+            })
         }
     </script>
 </html>

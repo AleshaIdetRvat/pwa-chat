@@ -37,11 +37,12 @@ self.addEventListener("fetch", (event) => {
             return fetch(event.request).catch(() => {
                 caches.open(CACHE_NAME_MESSAGES).then((messagesCache) => {
                     messagesCache.match(urlToMessagesCache).then((users) => {
-                        users.json().then((parsedOldMessages) => {
+                        users.json().then((parsedUsers) => {
                             self.clients.matchAll().then((clients) => {
                                 clients.forEach((client) => {
-                                    console.log("__offline__parsedOldMessages")
-                                    client.postMessage(parsedOldMessages)
+                                    console.log("__offline__parsedUsers", {})
+                                    client.postMessage(parsedUsers)
+                                    client.postMessage({ type: "OFFLINE" })
                                 })
                             })
                         })
@@ -117,12 +118,6 @@ self.addEventListener("message", function (event) {
                         (a, b) => toMinutes(a.time) - toMinutes(b.time)
                     )
                 }
-                console.log(
-                    "users",
-                    Object.keys(parsedUsers).filter(
-                        (userName) => userName !== myName
-                    )
-                )
 
                 self.clients.matchAll().then((clients) => {
                     clients.forEach((client) =>
