@@ -15,21 +15,21 @@
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
-
-        <script>
-            if ("serviceWorker" in navigator) {
-                window.addEventListener("load", async () => {
-                    try {
-                        const reg = await navigator.serviceWorker.register(
-                            "./serviceworker.js"
-                        )
-
-                        console.log("Registration success: ", reg.scope)
-                    } catch (error) {
-                        console.error("Registration failed", error)
-                    }
-                })
-            }
-        </script>
     </body>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", async () => {
+                try {
+                    const reg = await navigator.serviceWorker.register(
+                        "./serviceworker.js"
+                    )
+
+                    console.log("Registration success: ", reg.scope)
+                } catch (error) {
+                    console.error("Registration failed", error)
+                }
+            })
+        }
+    </script>
 </html>

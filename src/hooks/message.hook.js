@@ -50,7 +50,7 @@ function useMessage() {
             if (!isMessageObjValid(resMessage)) return
 
             if (resMessage.to === currentName.toLowerCase()) {
-                navigator.serviceWorker.controller.postMessage({
+                navigator.serviceWorker.controller?.postMessage({
                     myName: currentName,
                     message: resMessage,
                 })
@@ -67,7 +67,7 @@ function useMessage() {
         !isOffline && setIsOffline(true)
     }
 
-    function sendMessage(msg) {
+    async function sendMessage(msg) {
         if (currentName === "") return
 
         const newMessage = {
@@ -79,10 +79,14 @@ function useMessage() {
 
         setMessages([...messages, newMessage])
 
-        navigator.serviceWorker.controller.postMessage({
-            myName: currentName,
-            message: newMessage,
-        })
+        try {
+            navigator.serviceWorker.controller.postMessage({
+                myName: currentName,
+                message: newMessage,
+            })
+        } catch (error) {
+            alert("Please reload window (Ctrl + R) 🤒")
+        }
 
         ws.send(JSON.stringify(newMessage))
     }

@@ -168,7 +168,7 @@ const ChatContainer = () => {
 
     const [messageText, setMessageText] = useState("")
 
-    useEffect(() => {
+    useEffect(async () => {
         navigator.serviceWorker.onmessage = (event) => {
             if (event.data.type === "OFFLINE") return setIsOffline(true)
 
@@ -180,19 +180,23 @@ const ChatContainer = () => {
             }
         }
 
-        navigator.serviceWorker.controller.postMessage({
-            type: "GET_MESSAGES",
-            myName: currentName ? currentName.toLowerCase() : "",
-            message: {
-                from: currentName ? currentName.toLowerCase() : "",
-                to: addresseeName ? addresseeName.toLowerCase() : "",
-            },
-        })
+        try {
+            navigator.serviceWorker.controller.postMessage({
+                type: "GET_MESSAGES",
+                myName: currentName ? currentName.toLowerCase() : "",
+                message: {
+                    from: currentName ? currentName.toLowerCase() : "",
+                    to: addresseeName ? addresseeName.toLowerCase() : "",
+                },
+            })
+        } catch (error) {
+            alert("Please reload window (Ctrl + R) 🤒")
+        }
 
         return () => {
             navigator.serviceWorker.onmessage = null
         }
-    }, [addresseeName])
+    }, [addresseeName, navigator.serviceWorker.controller])
 
     const onChangeName = (e) => setCurrentName(e.target.value)
 
