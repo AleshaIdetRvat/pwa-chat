@@ -16,6 +16,8 @@ function initWebSocketConnection() {
 initWebSocketConnection()
 
 function useMessage() {
+    const [isOffline, setIsOffline] = useState(false)
+
     const [contacts, setContacts] = useState([])
 
     const [currentName, setCurrentName] = useState(
@@ -59,7 +61,10 @@ function useMessage() {
     }, [messages, currentName])
 
     if (ws) {
+        isOffline && setIsOffline(false)
         initOnMessage()
+    } else {
+        !isOffline && setIsOffline(true)
     }
 
     function sendMessage(msg) {
@@ -92,6 +97,8 @@ function useMessage() {
         setAddresseeName,
         contacts,
         setContacts,
+        isOffline,
+        setIsOffline,
     ]
 }
 

@@ -51,7 +51,7 @@ const Popup = (props) => {
     return (
         <div className={`popup ${isPopupShow && "popup-show"}`}>
             <form className='popup__form' onSubmit={onSubmit}>
-                <h1>PWA Chat</h1>
+                <h1>PWA Chat {isOffline && "(offline)"}</h1>
                 <input
                     className='popup__your-name'
                     type='text'

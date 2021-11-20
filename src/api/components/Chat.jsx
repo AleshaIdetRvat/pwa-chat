@@ -107,6 +107,7 @@ const Chat = (props) => {
                 >
                     <textarea
                         className='send-block__input'
+                        disabled={isOffline}
                         wrap='off'
                         value={messageText}
                         onChange={onChangeMessageText}
@@ -157,9 +158,9 @@ const ChatContainer = () => {
         setAddresseeName,
         contacts,
         setContacts,
+        isOffline,
+        setIsOffline,
     ] = useMessage()
-
-    const [isOffline, setIsOffline] = useState(false)
 
     const [isPopupShow, setIsPopupShow] = useState(
         !localStorage.getItem("name")
