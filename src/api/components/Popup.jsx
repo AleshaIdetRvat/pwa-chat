@@ -45,15 +45,6 @@ const Popup = (props) => {
                     style={validInputStyle(isNameValid)}
                 />
 
-                <input
-                    className='popup__addressee-name'
-                    type='text'
-                    placeholder='Addressee first and last name'
-                    value={addresseeName}
-                    onChange={onChangeAddressee}
-                    style={validInputStyle(isAddresseeNameValid)}
-                />
-
                 <button
                     className='popup__btn'
                     type='submit'
@@ -67,6 +58,15 @@ const Popup = (props) => {
                 >
                     Save
                 </button>
+
+                <input
+                    className='popup__addressee-name'
+                    type='text'
+                    placeholder='Add new contact'
+                    value={addresseeName}
+                    onChange={onChangeAddressee}
+                    style={validInputStyle(isAddresseeNameValid)}
+                />
             </form>
         </div>
     )

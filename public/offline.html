@@ -68,8 +68,100 @@
     </body>
 
     <script>
+        function createMessageElement(from, messageText, time, isMyMessage) {
+            return `
+                <li
+                    class='messages-list__item message ${
+                        isMyMessage ? "my-message" : ""
+                    }'
+                >
+                    <div class='message__container'>
+                        <div class='message__ava addressee-ava'>
+                            <span class='addressee-ava__inner'>
+                                ${from[0].toUpperCase()}
+                            </span>
+                        </div>
+
+                        <div class='message__content'>
+                            <h3 class='message__full-name'>${from}</h3>
+                            <p class='message__text'>
+                                ${
+                                    typeof messageText === "string" &&
+                                    messageText
+                                }
+
+                                <time class='message__time'>${time}</time>
+                            </p>
+                        </div>
+                    </div>
+                </li>`
+        }
+
+        function filterMessages(myName, addressee, parsedUsers) {
+            const toUser =
+                addressee.toLowerCase() === myName.toLowerCase()
+                    ? myName
+                    : addressee
+
+            let oldMessages = parsedUsers[addressee]
+
+            if (parsedUsers[myName]) {
+                oldMessages = [
+                    ...oldMessages,
+                    ...parsedUsers[myName].filter(({ to }) => to !== toUser),
+                ]
+
+                const toMinutes = (strTime) =>
+                    strTime
+                        .split(":")
+                        .reduce((prev, curr) => +prev * 60 + +curr)
+
+                oldMessages.sort(
+                    (a, b) => toMinutes(a.time) - toMinutes(b.time)
+                )
+            }
+
+            return oldMessages
+        }
+
+        function setMessages(messages, containerElement, myName) {
+            if (containerElement.innerHTML.trim() !== "") return
+
+            for (const msg of messages) {
+                const { from, to, messageText, time } = msg
+
+                const isMyMessage = from === myName
+
+                containerElement.innerHTML += createMessageElement(
+                    from,
+                    messageText,
+                    time,
+                    isMyMessage
+                )
+            }
+        }
+
         navigator.serviceWorker.onmessage = (event) => {
-            console.log("Offline😎CLIENT: Message from SW -", event.data)
+            let messagesList = document.getElementById("messages-list")
+            const addresseeAvaElement = document.getElementById(
+                "addressee-ava-inner"
+            )
+            const addresseeNameElement =
+                document.getElementById("addresse-name")
+
+            const myName = localStorage.getItem("name")
+            const addresseeName = localStorage.getItem("addresseeName")
+
+            addresseeAvaElement.innerText = addresseeName[0].toUpperCase()
+            addresseeNameElement.innerText = addresseeName
+
+            const normalizedMessages = filterMessages(
+                myName,
+                addresseeName,
+                event.data
+            )
+
+            setMessages(normalizedMessages, messagesList, myName)
         }
     </script>
 </html>

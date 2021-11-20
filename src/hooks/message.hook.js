@@ -19,6 +19,7 @@ function useMessage() {
     const [currentName, setCurrentName] = useState(
         localStorage.getItem("name") || ""
     )
+    console.log("currentName", currentName)
 
     const [addresseeName, setAddresseeName] = useState(
         localStorage.getItem("addresseeName") || ""
@@ -27,8 +28,28 @@ function useMessage() {
     const [messages, setMessages] = useState([])
 
     const initOnMessage = useCallback(() => {
+        function isMessageObjValid(msg) {
+            const isNextStep =
+                msg && typeof msg === "object" && !Array.isArray(msg)
+            if (isNextStep) {
+                const msgProperties = Object.getOwnPropertyNames(msg)
+                return (
+                    msgProperties.join() ===
+                    ["from", "to", "messageText", "time"].join()
+                )
+            }
+            return false
+        }
+
         ws.onmessage = (wsRes) => {
             const resMessage = JSON.parse(wsRes.data)
+
+            if (!isMessageObjValid(resMessage)) return
+
+            console.log(`resMessage`, resMessage)
+
+            console.log(`resMessage.to`, resMessage.to)
+            console.log(`currentName`, currentName)
 
             if (resMessage.to === currentName.toLowerCase()) {
                 console.log("WebSocket message:", resMessage)
@@ -41,7 +62,7 @@ function useMessage() {
                 setMessages([...messages, resMessage])
             }
         }
-    }, [messages])
+    }, [messages, currentName])
 
     if (ws) {
         initOnMessage()
